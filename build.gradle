@@ -1,0 +1,136 @@
+plugins {
+    id 'java'
+    id 'org.jetbrains.kotlin.jvm' version '1.9.22'
+}
+
+group = 'FirstPlugin'
+version = '1.0-SNAPSHOT'
+
+repositories {
+    mavenCentral()
+    maven {
+        name = "papermc-repo"
+        url = "https://repo.papermc.io/repository/maven-public/"
+    }
+    maven {
+        name = "sonatype"
+        url = "https://oss.sonatype.org/content/groups/public/"
+    }
+}
+
+dependencies {
+    compileOnly "io.papermc.paper:paper-api:1.21.4-R0.1-SNAPSHOT"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jdk8"
+    implementation "org.jetbrains.kotlin:kotlin-reflect"
+    implementation "org.xerial:sqlite-jdbc:3.43.2.2"
+}
+
+// This configuration ensures Kotlin runtime is included in the final JAR
+jar {
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from {
+        configurations.runtimeClasspath.collect { it.isDirectory() ? it : zipTree(it) }
+    } {
+        // Exclude META-INF signatures to avoid conflicts
+        exclude("META-INF/*.SF", "META-INF/*.DSA", "META-INF/*.RSA")
+    }
+}
+
+def targetJavaVersion = 21
+java {
+    def javaVersion = JavaVersion.toVersion(targetJavaVersion)
+    if (JavaVersion.current() < javaVersion) {
+        toolchain.languageVersion = JavaLanguageVersion.of(targetJavaVersion)
+    }
+}
+
+tasks.withType(JavaCompile).configureEach {
+    options.encoding = 'UTF-8'
+
+    if (targetJavaVersion >= 10 || JavaVersion.current().isJava10Compatible()) {
+        options.release.set(targetJavaVersion)
+    }
+}
+
+processResources {
+    def props = [version: version]
+    inputs.properties props
+    filteringCharset 'UTF-8'
+    filesMatching('paper-plugin.yml') {
+        expand props
+    }
+}
+
+task copyJarToServer(type: Copy, dependsOn: jar) {
+    from jar.archiveFile
+    into System.getProperty('user.home') + '/Desktop/MinecraftPaperServer/plugins'
+    rename { String fileName ->
+        fileName.replace("-${project.version}", "")
+    }
+}
+
+task stopServer {
+    doLast {
+        println "Stopping Minecraft server..."
+        def serverPath = System.getProperty('user.home') + '/Desktop/MinecraftPaperServer'
+        
+        exec {
+            commandLine 'sh', '-c', 'pkill -f "java.*paper.*jar"'
+            ignoreExitValue true
+        }
+        println "Server shutdown initiated. Waiting for it to complete..."
+        sleep(3000)
+        
+        // Check if server is still running
+        def sout = new ByteArrayOutputStream()
+        exec {
+            commandLine 'sh', '-c', 'ps aux | grep "java.*paper.*jar" | grep -v grep'
+            ignoreExitValue true
+            standardOutput = sout
+        }
+        
+        if (sout.toString().trim() != "") {
+            println "Server still running, forcing shutdown..."
+            exec {
+                commandLine 'sh', '-c', 'pkill -9 -f "java.*paper.*jar"'
+                ignoreExitValue true
+            }
+            println "Server forcefully shut down."
+        } else {
+            println "Server shut down successfully."
+        }
+    }
+}
+
+task restartServer(dependsOn: [stopServer, copyJarToServer]) {
+    def serverPath = System.getProperty('user.home') + '/Desktop/MinecraftPaperServer'
+    
+    doLast {
+        // Check for any world locks
+        exec {
+            workingDir serverPath
+            commandLine 'sh', '-c', 'rm -f world/session.lock world_nether/session.lock world_the_end/session.lock'
+            ignoreExitValue true
+        }
+        sleep(1000)
+        
+        // Start the server in a new process
+        println "Starting Minecraft server..."
+        exec {
+            workingDir serverPath
+            // Start the server in a detached process that won't be killed when Gradle finishes
+            commandLine 'sh', '-c', 'nohup java -Xms1G -Xmx4G -jar paper-1.21.4-211.jar nogui > server.log 2>&1 &'
+        }
+        
+        println "Server starting in background. Check server.log for progress."
+    }
+}
+kotlin {
+    jvmToolchain(21)
+    sourceSets {
+        main {
+            kotlin.srcDirs = ['src/main/kotlin']
+            resources.srcDirs = ['src/main/resources']
+        }
+    }
+}
