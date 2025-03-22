@@ -1,0 +1,28 @@
+# RPG Plugin Configuration
+# Version 1.0
+
+# General settings
+settings:
+  debug-mode: false
+  
+# Player settings
+player:
+  starting-level: 1
+  max-level: 100
+  experience-multiplier: 1.0
+  
+# Combat settings
+combat:
+  damage-multiplier: 1.0
+  critical-hit-chance: 0.05
+  critical-hit-multiplier: 1.5
+  
+# Economy settings
+economy:
+  starting-money: 100
+  money-drop-multiplier: 1.0
+  
+# Message customization
+messages:
+  welcome: "&aWelcome to the RPG server, %player%!"
+  level-up: "&6Congratulations! You've reached level ${player.level}!"
