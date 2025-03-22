@@ -1,0 +1,14 @@
+name: rpg
+version: '${version}'
+main: firstplugin.plugin.SkyblockPlugin
+api-version: '1.21'
+description: A RPG plugin for Minecraft
+authors: [YourName]
+website: https://yourwebsite.com
+permissions:
+  rpg.use:
+    description: Allows using RPG commands
+    default: true
+  rpg.feed:
+    description: Allows using the feed command
+    default: true
