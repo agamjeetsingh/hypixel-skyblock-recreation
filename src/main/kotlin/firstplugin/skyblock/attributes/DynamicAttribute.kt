@@ -1,36 +1,34 @@
 package firstplugin.skyblock.attributes
 
-import net.kyori.adventure.text.format.NamedTextColor
-
 interface DynamicAttribute : Attribute {
     var current: Double
 
+    override val value: Double
+        get() = max
+
     val max: Double
-        get() = value
+        get() {
+            var result = baseValue
 
-    class Health : DynamicAttribute {
-        private val _modifiers: MutableList<AttributeEffect> = mutableListOf()
+            // Constant increase like +10 Health
+            val constantSum = constantModifiers.sumOf { it.effect }
+            result += constantSum
 
-        override val modifiers: List<AttributeEffect>
-            get() = _modifiers.toList()
+            // Percentage increases like +5%
+            val additiveSum = 1.0 + additiveModifiers.sumOf { it.effect }
+            result *= additiveSum
 
-        override val attributeID: String = "health"
+            // Multipliers like x1.1, x1.3, etc.
+            val multiplier =
+                if (multiplicativeModifiers.isEmpty()) {
+                    1.0
+                } else {
+                    multiplicativeModifiers
+                        .map { it.effect }
+                        .reduce { acc, value -> acc * value }
+                }
+            result *= multiplier
 
-        override val baseValue: Double = 100.0
-
-        override var current: Double = baseValue
-
-        override val symbol: String = "❤"
-
-        override val color: NamedTextColor = NamedTextColor.RED
-
-        override fun addEffect(attributeEffect: AttributeEffect) {
-            _modifiers.add(attributeEffect)
+            return result
         }
-
-        override fun removeEffect(attributeEffect: AttributeEffect): Boolean =
-            _modifiers.removeAll {
-                it.id == attributeEffect.id
-            }
-    }
 }
