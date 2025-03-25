@@ -3,6 +3,7 @@ package firstplugin.plugin
 import firstplugin.Rank
 import firstplugin.ServerPlayer
 import firstplugin.skyblock.SkyblockManager
+import firstplugin.skyblock.display.ActionBarManager
 import io.papermc.paper.event.player.AsyncChatEvent
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
@@ -14,7 +15,9 @@ import org.bukkit.plugin.java.JavaPlugin
 class SkyblockPlugin :
     JavaPlugin(),
     Listener {
-    private lateinit var skyblockManager: SkyblockManager
+    lateinit var skyblockManager: SkyblockManager
+        private set
+    private lateinit var actionBarManager: ActionBarManager
     private val shutdownHooks = mutableListOf<() -> Unit>()
 
     override fun onEnable() {
@@ -24,6 +27,10 @@ class SkyblockPlugin :
 
         skyblockManager = SkyblockManager(this)
         skyblockManager.initialize()
+        
+        // Initialize the action bar manager
+        actionBarManager = ActionBarManager(this)
+        actionBarManager.initialize()
 
         saveDefaultConfig()
     }
