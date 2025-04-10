@@ -1,6 +1,6 @@
 package firstplugin.skyblock.menu
 
-import firstplugin.skyblock.SkyblockPlayer
+import firstplugin.skyblock.entity.SkyblockPlayer
 import org.bukkit.Material
 import org.bukkit.entity.Player
 import org.bukkit.event.EventHandler

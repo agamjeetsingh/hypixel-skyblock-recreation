@@ -27,6 +27,16 @@ class SkyblockLore(
     val lastIndent: Int
         get() = indentations.lastOrNull() ?: 0
 
+    fun isEmpty(): Boolean = _lore.isEmpty()
+
+    fun addEmptyLine() {
+        _lore.add(Component.text(""))
+    }
+
+    fun addLore(newLore: SkyblockLore) {
+        _lore.addAll(newLore.lore)
+    }
+
     fun addLore(
         newLore: List<Component>,
         newLoreIndentation: Int? = null,
@@ -68,6 +78,7 @@ class SkyblockLore(
     /**
      * Wraps a component's text to fit within a specified maximum line length.
      * Preserves styling and handles words that exceed the line length.
+     * Processes children inline with their own styling.
      *
      * @param component The component to wrap
      * @param maxCharactersPerLine Maximum characters allowed per line
@@ -77,68 +88,126 @@ class SkyblockLore(
         component: Component,
         maxCharactersPerLine: Int,
     ): List<Component> {
-        if (component !is TextComponent) {
-            return listOf(component)
-        }
-
         val result = mutableListOf<Component>()
-        val content = component.content()
-        val style = component.style()
+        var currentLine = Component.empty()
+        var currentLineLength = 0
+        var isFirstComponentInLine = true
 
-        val leadingSpaces = content.takeWhile { it.isWhitespace() }
+        fun processComponent(comp: Component) {
+            if (comp is TextComponent) {
+                val content = comp.content()
+                val style = comp.style()
 
-        val trimmedContent = content.dropWhile { it.isWhitespace() }
-        val words = if (trimmedContent.isNotEmpty()) trimmedContent.split(" ") else listOf("")
+                // Handle indentation for the first component
+                val leadingSpaces = content.takeWhile { it.isWhitespace() }
+                val trimmedContent = content.dropWhile { it.isWhitespace() }
 
-        // Start with leading spaces
-        var currentLine = StringBuilder(leadingSpaces)
-
-        for (word in words) {
-            // Check if adding this word would exceed the line limit
-            if (currentLine.length + word.length + (if (currentLine.length > leadingSpaces.length) 1 else 0) >
-                maxCharactersPerLine
-            ) {
-                // Add the current line to results if not empty
-                if (currentLine.isNotEmpty()) {
-                    result.add(Component.text(currentLine.toString()).style(style))
-                    // Start a new line with the same indentation
-                    currentLine = StringBuilder(leadingSpaces)
+                // If this is the first content on the line, add the indentation
+                if (currentLineLength == 0 && leadingSpaces.isNotEmpty()) {
+                    currentLine = currentLine.append(Component.text(leadingSpaces).style(style))
+                    currentLineLength = leadingSpaces.length
                 }
 
-                // If the word itself is longer than the max line length (minus indentation), split it
-                if (word.length > maxCharactersPerLine - leadingSpaces.length) {
-                    var remainingWord = word
-                    while (remainingWord.isNotEmpty()) {
-                        val maxChunkSize = maxCharactersPerLine - leadingSpaces.length
-                        val chunk = remainingWord.take(maxChunkSize)
+                val words = if (trimmedContent.isNotEmpty()) trimmedContent.split(" ") else listOf("")
 
-                        // Always add indentation to new chunks
-                        result.add(Component.text(leadingSpaces + chunk).style(style))
-                        remainingWord = remainingWord.drop(maxChunkSize)
+                for (word in words) {
+                    // Only add a space if this is not the first component or word in the line
+                    // and the current word is not empty (to avoid extra spaces)
+                    val spaceNeeded =
+                        if (currentLineLength > 0 &&
+                            !isFirstComponentInLine &&
+                            word.isNotEmpty()
+                        ) {
+                            1
+                        } else {
+                            0
+                        }
+
+                    // Don't mark as first component anymore after processing the first word
+                    if (isFirstComponentInLine && word.isNotEmpty()) {
+                        isFirstComponentInLine = false
                     }
-                } else {
-                    currentLine.append(word)
+
+                    // Check if adding this word would exceed the line limit
+                    if (currentLineLength + spaceNeeded + word.length > maxCharactersPerLine) {
+                        // Add current line to results if not empty
+                        if (currentLineLength > 0) {
+                            result.add(currentLine)
+                            currentLine = Component.empty()
+                            currentLineLength = 0
+                            isFirstComponentInLine = true
+
+                            // Add indentation to the new line
+                            if (leadingSpaces.isNotEmpty()) {
+                                currentLine = currentLine.append(Component.text(leadingSpaces).style(style))
+                                currentLineLength = leadingSpaces.length
+                            }
+                        }
+
+                        // If the word itself is longer than the max line length (minus indentation)
+                        if (word.length > maxCharactersPerLine - leadingSpaces.length) {
+                            var remainingWord = word
+                            while (remainingWord.isNotEmpty()) {
+                                val maxChunkSize = maxCharactersPerLine - leadingSpaces.length
+                                val chunk = remainingWord.take(maxChunkSize)
+
+                                // If current line already has content
+                                if (currentLineLength > 0) {
+                                    result.add(currentLine)
+                                    currentLine = Component.empty()
+                                    currentLineLength = 0
+                                    isFirstComponentInLine = true
+                                    currentLine = currentLine.append(Component.text(leadingSpaces + chunk).style(style))
+                                } else {
+                                    currentLine = currentLine.append(Component.text(leadingSpaces + chunk).style(style))
+                                }
+
+                                currentLineLength = leadingSpaces.length + chunk.length
+                                remainingWord = remainingWord.drop(maxChunkSize)
+
+                                // If there's more of the word, add this line and prepare for the next chunk
+                                if (remainingWord.isNotEmpty()) {
+                                    result.add(currentLine)
+                                    currentLine = Component.empty()
+                                    currentLineLength = 0
+                                    isFirstComponentInLine = true
+                                }
+                            }
+                        } else {
+                            // Word fits on a new line
+                            currentLine = currentLine.append(Component.text(word).style(style))
+                            currentLineLength += word.length
+                            isFirstComponentInLine = false
+                        }
+                    } else {
+                        // Add a space if the line already has content and this is not the first component
+                        if (spaceNeeded > 0) {
+                            currentLine = currentLine.append(Component.space())
+                            currentLineLength++
+                        }
+
+                        // Add the word
+                        if (word.isNotEmpty()) {
+                            currentLine = currentLine.append(Component.text(word).style(style))
+                            currentLineLength += word.length
+                            isFirstComponentInLine = false
+                        }
+                    }
                 }
-            } else {
-                // Add a space if the line already has content beyond indentation
-                if (currentLine.length > leadingSpaces.length) {
-                    currentLine.append(" ")
-                }
-                currentLine.append(word)
+            }
+
+            // Process all children of this component inline
+            for (child in comp.children()) {
+                processComponent(child)
             }
         }
 
-        // Add the last line if not empty
-        if (currentLine.isNotEmpty()) {
-            result.add(Component.text(currentLine.toString()).style(style))
-        }
+        // Start processing the root component
+        processComponent(component)
 
-        // Process children components if any
-        val children = component.children()
-        if (children.isNotEmpty()) {
-            for (child in children) {
-                result.addAll(wrapComponent(child, maxCharactersPerLine))
-            }
+        // Add the last line if it has content
+        if (currentLineLength > 0) {
+            result.add(currentLine)
         }
 
         return result
@@ -161,7 +230,10 @@ class SkyblockLore(
         }
 
         val indentString = " ".repeat(indentCount)
-        return Component.text(indentString + component.content()).style(component.style())
+        return Component
+            .text(indentString + component.content())
+            .style(component.style())
+            .children(component.children()) // Preserve children
     }
 
     companion object {

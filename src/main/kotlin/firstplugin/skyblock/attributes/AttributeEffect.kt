@@ -4,24 +4,22 @@ import kotlinx.serialization.Serializable
 
 interface AttributeEffect {
     val effect: Double
-    val id: AttributeType
 }
 
 // TODO Add to whom does it apply to, like sometimes we might have extra damage against zombies specifically
 @Serializable
-class BaseAttributeEffect(
+data class BaseAttributeEffect(
     override val effect: Double,
-    override val id: AttributeType,
 ) : AttributeEffect
 
 /**
  * Represents constant attribute modifiers. For example: +20 Defense, +5 Health Points
  */
 @Serializable
-class ConstantAttributeEffect(
+data class ConstantAttributeEffect(
     private val attributeEffect: AttributeEffect,
 ) : AttributeEffect by attributeEffect {
-    constructor(effect: Double, id: AttributeType) : this(BaseAttributeEffect(effect, id))
+    constructor(effect: Double) : this(BaseAttributeEffect(effect))
 }
 
 /**
@@ -31,10 +29,10 @@ class ConstantAttributeEffect(
  * (like 1.0 + 0.2 + 0.05) and multiplied with the main attribute to modify it.
  */
 @Serializable
-class AdditiveAttributeEffect(
+data class AdditiveAttributeEffect(
     private val attributeEffect: AttributeEffect,
 ) : AttributeEffect by attributeEffect {
-    constructor(effect: Double, id: AttributeType) : this(BaseAttributeEffect(effect, id))
+    constructor(effect: Double) : this(BaseAttributeEffect(effect))
 }
 
 /**
@@ -44,8 +42,8 @@ class AdditiveAttributeEffect(
  * and multiplied with the main attribute to modify it.
  */
 @Serializable
-class MultiplicativeAttributeEffect(
+data class MultiplicativeAttributeEffect(
     private val attributeEffect: AttributeEffect,
 ) : AttributeEffect by attributeEffect {
-    constructor(effect: Double, id: AttributeType) : this(BaseAttributeEffect(effect, id))
+    constructor(effect: Double) : this(BaseAttributeEffect(effect))
 }

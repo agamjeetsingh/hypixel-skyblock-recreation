@@ -1,6 +1,6 @@
 package firstplugin.skyblock.menu
 
-import firstplugin.skyblock.SkyblockPlayer
+import firstplugin.skyblock.entity.SkyblockPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration

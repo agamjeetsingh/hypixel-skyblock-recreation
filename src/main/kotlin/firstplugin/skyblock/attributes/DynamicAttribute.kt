@@ -1,34 +1,22 @@
 package firstplugin.skyblock.attributes
 
-interface DynamicAttribute : Attribute {
-    var current: Double
+import kotlinx.serialization.Serializable
 
-    override val value: Double
-        get() = max
+@Serializable
+abstract class DynamicAttribute : Attribute() {
+    abstract var current: Double
 
     val max: Double
-        get() {
-            var result = baseValue
+        get() = value
 
-            // Constant increase like +10 Health
-            val constantSum = constantModifiers.sumOf { it.effect }
-            result += constantSum
+    open fun increase(increaseAmt: Double) {
+        current = Math.min(max, current + increaseAmt)
+    }
 
-            // Percentage increases like +5%
-            val additiveSum = 1.0 + additiveModifiers.sumOf { it.effect }
-            result *= additiveSum
-
-            // Multipliers like x1.1, x1.3, etc.
-            val multiplier =
-                if (multiplicativeModifiers.isEmpty()) {
-                    1.0
-                } else {
-                    multiplicativeModifiers
-                        .map { it.effect }
-                        .reduce { acc, value -> acc * value }
-                }
-            result *= multiplier
-
-            return result
+    open fun decrease(decreaseAmt: Double) {
+        if (decreaseAmt <= 0.0) {
+            return
         }
+        current = Math.max(0.0, current - decreaseAmt)
+    }
 }

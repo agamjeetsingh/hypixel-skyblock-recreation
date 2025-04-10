@@ -1,21 +1,29 @@
 package firstplugin.skyblock.display
 
 import firstplugin.plugin.SkyblockPlugin
-import firstplugin.skyblock.SkyblockPlayer
-import firstplugin.skyblock.attributes.defense
-import firstplugin.skyblock.attributes.intelligence
-import firstplugin.skyblock.attributes.sbHealth
+import firstplugin.skyblock.entity.*
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
+import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.scheduler.BukkitRunnable
 import kotlin.math.roundToInt
 
 private const val UPDATE_ACTION_BAR_EVERY_TICKS = 5L
+private const val NOT_ENOUGH_MANA_DURATION = 40L
 
 class ActionBarManager(
     private val plugin: SkyblockPlugin,
 ) {
     private var task: BukkitRunnable? = null
+
+    fun notEnoughMana(entity: CombatEntity) {
+        entity.notEnoughMana = true
+        object : BukkitRunnable() {
+            override fun run() {
+                entity.notEnoughMana = false
+            }
+        }.runTaskLater(plugin, NOT_ENOUGH_MANA_DURATION)
+    }
 
     fun initialize() {
         // Create a repeating task that runs every second (20 ticks)
@@ -44,6 +52,8 @@ class ActionBarManager(
     }
 
     private fun updatePlayerActionBar(player: SkyblockPlayer) {
+        if (!player.attributesInitialized) return
+
         // Build the action bar component
         val actionBar = Component.text()
 
@@ -76,19 +86,28 @@ class ActionBarManager(
                 .color(player.defense.color),
         )
 
-        actionBar.append(
-            Component
-                .text(
-                    "${player.intelligence.currentMana}/${player.intelligence.maxMana}",
-                ).color(player.intelligence.color),
-        )
-
         // Add mana to action bar
-        actionBar.append(
-            Component
-                .text("${player.intelligence.symbol} Mana")
-                .color(player.intelligence.color),
-        )
+        if (!player.notEnoughMana) {
+            actionBar.append(
+                Component
+                    .text(
+                        "${player.intelligence.currentMana}/${player.intelligence.maxMana}",
+                    ).color(player.intelligence.color),
+            )
+
+            actionBar.append(
+                Component
+                    .text("${player.intelligence.symbol} Mana")
+                    .color(player.intelligence.color),
+            )
+        } else {
+            actionBar.append(
+                Component
+                    .text("NOT ENOUGH MANA")
+                    .color(NamedTextColor.RED)
+                    .decorate(TextDecoration.BOLD),
+            )
+        }
 
         player.bukkitPlayer.sendActionBar(actionBar.build())
     }

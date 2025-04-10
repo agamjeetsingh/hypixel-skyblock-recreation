@@ -2,25 +2,26 @@
 
 package firstplugin.skyblock.attributes.dynamicAttributes
 
-import firstplugin.skyblock.attributes.*
+import firstplugin.skyblock.attributes.Attributable
+import firstplugin.skyblock.attributes.AttributeCategory
+import firstplugin.skyblock.attributes.DynamicAttribute
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.kyori.adventure.text.format.NamedTextColor
 
 @Serializable
-class Intelligence : DynamicAttribute {
-    override val attributeID: AttributeType = AttributeType.INTELLIGENCE
+class Intelligence(
+    @Transient
+    override val attributeHolder: Attributable? = null,
+    override val baseValue: Double = 0.0,
+) : DynamicAttribute() {
     override val attributeCategory: AttributeCategory = AttributeCategory.COMBAT
-    override val baseValue: Double = 0.0
+
     override var current: Double = baseValue
     override val symbol: String = "✎"
 
     @Transient
     override val color: NamedTextColor = NamedTextColor.AQUA
-
-    override val constantModifiers = mutableListOf<ConstantAttributeEffect>()
-    override val additiveModifiers = mutableListOf<AdditiveAttributeEffect>()
-    override val multiplicativeModifiers = mutableListOf<MultiplicativeAttributeEffect>()
 
     val baseMana: Int = 100
 
@@ -30,11 +31,5 @@ class Intelligence : DynamicAttribute {
     val maxMana: Int
         get() = baseMana + max.toInt()
 
-    override fun addEffect(effect: AttributeEffect) {
-        when (effect) {
-            is ConstantAttributeEffect -> constantModifiers.add(effect)
-            is AdditiveAttributeEffect -> additiveModifiers.add(effect)
-            is MultiplicativeAttributeEffect -> multiplicativeModifiers.add(effect)
-        }
-    }
+    override val prettyPrintValueForMenu: String = String.format("%.1f", value)
 }

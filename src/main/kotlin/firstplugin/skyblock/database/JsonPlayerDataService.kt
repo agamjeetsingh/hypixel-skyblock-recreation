@@ -2,19 +2,16 @@
 
 package firstplugin.skyblock.database
 
+import com.google.gson.*
+import com.google.gson.reflect.TypeToken
 import firstplugin.skyblock.attributes.*
 import firstplugin.skyblock.attributes.dynamicAttributes.Health
 import firstplugin.skyblock.attributes.dynamicAttributes.Intelligence
 import firstplugin.skyblock.attributes.staticAttributes.*
 import firstplugin.skyblock.entity.SkyblockPlayer
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.encodeToString
-import kotlinx.serialization.json.Json
-import kotlinx.serialization.modules.SerializersModule
-import kotlinx.serialization.modules.polymorphic
-import kotlinx.serialization.modules.subclass
 import org.bukkit.plugin.java.JavaPlugin
 import java.io.File
+import java.lang.reflect.Type
 import java.util.UUID
 import java.util.concurrent.CompletableFuture
 import java.util.concurrent.Executors
@@ -30,38 +27,75 @@ class JsonPlayerDataService(
     private val dataDir: File = File(plugin.dataFolder, "player-data")
     private val asyncExecutor = Executors.newSingleThreadExecutor()
 
-    // JSON formatter with pretty printing and polymorphic serialization for attributes
-    private val json: Json =
-        Json {
-            prettyPrint = true
-            ignoreUnknownKeys = true // Helps with backward compatibility if class structure changes
+    // Type adapter for handling attribute polymorphism
+    inner class AttributeTypeAdapter : JsonSerializer<Attribute>, JsonDeserializer<Attribute> {
+        override fun serialize(src: Attribute, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            val jsonObject = JsonObject()
+            // Add type information
+            jsonObject.addProperty("type", src.javaClass.name)
             
-            serializersModule =
-                SerializersModule {
-                    // Register all attribute classes for polymorphic serialization
-                    polymorphic(Attribute::class) {
-                        subclass(Health::class)
-                        subclass(Defense::class)
-                        subclass(Speed::class)
-                        subclass(Strength::class)
-                        subclass(Intelligence::class)
-                        subclass(HealthRegen::class)
-                        subclass(TrueDefense::class)
-                        subclass(CritDamage::class)
-                        subclass(CritChance::class)
-                        subclass(BonusAttackSpeed::class)
-                        subclass(Damage::class)
-                    }
-                    
-                    // Register attribute effect classes
-                    polymorphic(AttributeEffect::class) {
-                        subclass(BaseAttributeEffect::class)
-                        subclass(ConstantAttributeEffect::class)
-                        subclass(AdditiveAttributeEffect::class)
-                        subclass(MultiplicativeAttributeEffect::class)
-                    }
+            // Serialize the rest of the object excluding attributeHolder field
+            val objectJson = context.serialize(src).asJsonObject
+            objectJson.entrySet().forEach { (key, value) ->
+                if (key != "type" && key != "attributeHolder") {
+                    jsonObject.add(key, value)
                 }
+            }
+            
+            return jsonObject
         }
+        
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): Attribute {
+            val jsonObject = json.asJsonObject
+            val type = jsonObject.get("type").asString
+            
+            try {
+                val attributeClass = Class.forName(type)
+                return context.deserialize(json, attributeClass)
+            } catch (e: ClassNotFoundException) {
+                plugin.logger.warning("Unknown attribute type: $type")
+                throw JsonParseException("Unknown attribute type: $type", e)
+            }
+        }
+    }
+    
+    // Type adapter for AttributeEffect
+    inner class AttributeEffectTypeAdapter : JsonSerializer<AttributeEffect>, JsonDeserializer<AttributeEffect> {
+        override fun serialize(src: AttributeEffect, typeOfSrc: Type, context: JsonSerializationContext): JsonElement {
+            val jsonObject = JsonObject()
+            jsonObject.addProperty("type", src.javaClass.name)
+            
+            val objectJson = context.serialize(src).asJsonObject
+            objectJson.entrySet().forEach { (key, value) ->
+                if (key != "type") {
+                    jsonObject.add(key, value)
+                }
+            }
+            
+            return jsonObject
+        }
+        
+        override fun deserialize(json: JsonElement, typeOfT: Type, context: JsonDeserializationContext): AttributeEffect {
+            val jsonObject = json.asJsonObject
+            val type = jsonObject.get("type").asString
+            
+            try {
+                val effectClass = Class.forName(type)
+                return context.deserialize(json, effectClass)
+            } catch (e: ClassNotFoundException) {
+                plugin.logger.warning("Unknown attribute effect type: $type")
+                throw JsonParseException("Unknown attribute effect type: $type", e)
+            }
+        }
+    }
+    
+    // Create Gson instance with pretty printing and type adapters
+    private val gson = GsonBuilder()
+        .setPrettyPrinting()
+        .serializeNulls()
+        .registerTypeAdapter(Attribute::class.java, AttributeTypeAdapter())
+        .registerTypeAdapter(AttributeEffect::class.java, AttributeEffectTypeAdapter())
+        .create()
 
     init {
         // Create player data directory if it doesn't exist
@@ -92,7 +126,7 @@ class JsonPlayerDataService(
 
             // Save to file
             val playerFile: File = getPlayerFile(player.uniqueId)
-            playerFile.writeText(json.encodeToString(playerData))
+            playerFile.writeText(gson.toJson(playerData))
 
             plugin.logger.info("Saved data for player ${player.name}")
         } catch (e: Exception) {
@@ -113,7 +147,7 @@ class JsonPlayerDataService(
                 plugin.logger.info("File content length: ${fileContent.length}")
 
                 try {
-                    val playerData = json.decodeFromString<PlayerData>(fileContent)
+                    val playerData = gson.fromJson(fileContent, PlayerData::class.java)
                     plugin.logger.info("Successfully decoded player data with ${playerData.attributes.size} attributes")
                     playerData.applyToPlayer(player)
                     plugin.logger.info("Loaded data for player ${player.name}")
@@ -146,7 +180,7 @@ class JsonPlayerDataService(
                     val content = playerFile.readText()
                     println("Async: Read ${content.length} characters from file")
                     try {
-                        val data = json.decodeFromString<PlayerData>(content)
+                        val data = gson.fromJson(content, PlayerData::class.java)
                         println("Async: Successfully decoded PlayerData with ${data.attributes.size} attributes")
                         data
                     } catch (e: Exception) {
@@ -213,9 +247,8 @@ class JsonPlayerDataService(
     }
 
     /**
-     * Serializable data class for player information.
+     * Data class for player information.
      */
-    @Serializable
     data class PlayerData(
         val uuid: String,
         val name: String,

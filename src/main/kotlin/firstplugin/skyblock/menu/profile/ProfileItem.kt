@@ -1,6 +1,7 @@
 package firstplugin.skyblock.menu.profile
 
-import firstplugin.skyblock.SkyblockPlayer
+import firstplugin.skyblock.attributes.Attribute.Companion.friendlierAttributeName
+import firstplugin.skyblock.entity.SkyblockPlayer
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
@@ -31,7 +32,24 @@ object ProfileItem {
                     .text("View your equipment, stats, and more!")
                     .color(NamedTextColor.GRAY)
                     .decoration(TextDecoration.ITALIC, false),
+                Component
+                    .text(""),
             )
+
+        player.attributes.forEach {
+            val component =
+                Component
+                    .text(" ${it.symbol} ${friendlierAttributeName(it)} ")
+                    .color(it.color)
+                    .decoration(TextDecoration.ITALIC, false)
+                    .append(
+                        Component
+                            .text(it.prettyPrintValueForMenu)
+                            .color(NamedTextColor.WHITE)
+                            .decoration(TextDecoration.ITALIC, false),
+                    )
+            lore.add(component)
+        }
 
         skullMeta.lore(lore)
 

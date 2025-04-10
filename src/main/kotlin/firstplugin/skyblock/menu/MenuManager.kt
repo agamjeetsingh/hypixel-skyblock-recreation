@@ -1,7 +1,7 @@
 package firstplugin.skyblock.menu
 
 import firstplugin.plugin.SkyblockPlugin
-import firstplugin.skyblock.SkyblockPlayer
+import firstplugin.skyblock.entity.SkyblockPlayer
 import firstplugin.skyblock.menu.profile.ProfileItem
 import net.kyori.adventure.text.Component
 import org.bukkit.Bukkit

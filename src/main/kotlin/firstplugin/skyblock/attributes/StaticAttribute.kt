@@ -1,3 +1,6 @@
 package firstplugin.skyblock.attributes
 
-interface StaticAttribute : Attribute
+import kotlinx.serialization.Serializable
+
+@Serializable
+abstract class StaticAttribute : Attribute()

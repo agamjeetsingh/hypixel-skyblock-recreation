@@ -2,16 +2,20 @@
 
 package firstplugin.skyblock.attributes.staticAttributes
 
-import firstplugin.skyblock.attributes.*
+import firstplugin.skyblock.attributes.Attributable
+import firstplugin.skyblock.attributes.AttributeCategory
+import firstplugin.skyblock.attributes.StaticAttribute
 import kotlinx.serialization.Serializable
 import kotlinx.serialization.Transient
 import net.kyori.adventure.text.format.NamedTextColor
 
 @Serializable
-class HealthRegen : StaticAttribute {
-    override val attributeID: AttributeType = AttributeType.HEALTH_REGEN
+class HealthRegen(
+    @Transient
+    override val attributeHolder: Attributable? = null,
+    override val baseValue: Double = 100.0,
+) : StaticAttribute() {
     override val attributeCategory: AttributeCategory = AttributeCategory.COMBAT
-    override val baseValue: Double = 100.0
     override val symbol: String = "❣"
 
     @Transient
@@ -19,7 +23,5 @@ class HealthRegen : StaticAttribute {
 
     var regenIntervalInTicks: Int = 40
 
-    override val constantModifiers = mutableListOf<ConstantAttributeEffect>()
-    override val additiveModifiers = mutableListOf<AdditiveAttributeEffect>()
-    override val multiplicativeModifiers = mutableListOf<MultiplicativeAttributeEffect>()
+    override val prettyPrintValueForMenu: String = value.toInt().toString()
 }
