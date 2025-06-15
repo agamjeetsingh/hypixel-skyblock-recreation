@@ -5,14 +5,13 @@ import firstplugin.skyblock.attributes.AttributeCategory
 import firstplugin.skyblock.attributes.StaticAttribute
 import net.kyori.adventure.text.format.NamedTextColor
 
-class MiningFortune(
+class MiningSpeed(
     @Transient
     override val attributeHolder: Attributable? = null,
     override val baseValue: Double = 0.0,
 ) : StaticAttribute() {
-    override val symbol: String = "☘"
+    override val symbol: String = "⸕"
 
-    @Transient
     override val color: NamedTextColor = NamedTextColor.GOLD
 
     override val attributeCategory: AttributeCategory = AttributeCategory.GATHERING
