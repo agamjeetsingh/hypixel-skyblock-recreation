@@ -3,6 +3,7 @@ package firstplugin.skyblock.utils
 import firstplugin.skyblock.utils.loreElements.SkyblockLoreElement
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
+import org.bukkit.entity.Player
 
 // TODO - Might need to add a space between sentences of different components (and in some other cases too, think hard!)
 
@@ -11,15 +12,24 @@ class SkyblockLore(
 ) {
     private val _lore: MutableList<Component> = mutableListOf()
     private val indentations: List<Int>
-        get() =
-            _lore.map { component ->
+        get() {
+            val previousIndent = 0
+            val indentationList = mutableListOf<Int>()
+            for (index in 0..<_lore.size) {
+                val component = _lore[index]
                 if (component is TextComponent) {
-                    val content = component.content()
-                    content.takeWhile { it.isWhitespace() }.count()
+                    if (component.content().isEmpty()) {
+                        indentationList.add(previousIndent)
+                        continue
+                    }
+                    indentationList.add(component.content().takeWhile { it.isWhitespace() }.count())
+                    continue
                 } else {
-                    0
+                    indentationList.add(0)
                 }
             }
+            return indentationList
+        }
 
     val lore: List<Component>
         get() = _lore.toList()
@@ -37,19 +47,19 @@ class SkyblockLore(
         _lore.addAll(newLore.lore)
     }
 
-    fun addLore(
+    private fun addLore(
         newLore: List<Component>,
-        newLoreIndentation: Int? = null,
+        newLoreIndentation: Int = 0,
     ) {
         for (component in newLore) {
-            val indentedComponent = addIndentation(component, newLoreIndentation ?: 0)
+            val indentedComponent = addIndentation(component, newLoreIndentation)
             _lore.addAll(wrapComponent(indentedComponent, maxLineLength))
         }
     }
 
-    fun addLore(
+    private fun addLore(
         newLore: Component,
-        newLoreIndentation: Int? = null,
+        newLoreIndentation: Int = 0,
     ) {
         addLore(listOf(newLore), newLoreIndentation)
     }
@@ -60,19 +70,32 @@ class SkyblockLore(
     }
 
     /**
-     * Adds lore components with the same indentation as the last existing
-     * lore line, wrapping text to fit within maxLineLength.
+     * Master addLore
      */
-    fun addLoreMaintainIndent(newLore: List<Component>) {
-        addLore(newLore, lastIndent)
+    fun addLore(
+        newLore: List<Component>,
+        newIndent: Int = 0,
+        maintainIndent: Boolean = false,
+    ) {
+        val safeNewIndent = 0.coerceAtLeast(newIndent)
+        if (safeNewIndent > 0) {
+            // We maintain indent always
+            addLore(newLore, lastIndent + safeNewIndent)
+        } else if (maintainIndent) {
+            // No new indent, but still need to maintain indent
+            addLore(newLore, lastIndent)
+        } else {
+            // Just add the new lore
+            addLore(newLore)
+        }
     }
 
-    fun addLoreOneMoreIndent(newLore: List<Component>) {
-        addLore(newLore, lastIndent + 1)
-    }
-
-    fun addLoreOneLessIndent(newLore: List<Component>) {
-        addLore(newLore, lastIndent - 1)
+    fun addLore(
+        newLore: Component,
+        newIndent: Int = 0,
+        maintainIndent: Boolean = false,
+    ) {
+        addLore(listOf(newLore), newIndent, maintainIndent)
     }
 
     /**
@@ -241,4 +264,8 @@ class SkyblockLore(
 
         const val INVENTORY_MAX_LINE_LENGTH = 50
     }
+}
+
+fun Player.sendMessage(skyblockLore: SkyblockLore) {
+    skyblockLore.lore.forEach { this.sendMessage(it) }
 }
