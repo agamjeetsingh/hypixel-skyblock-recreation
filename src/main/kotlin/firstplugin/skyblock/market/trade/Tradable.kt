@@ -1,4 +1,4 @@
-package firstplugin.trade
+package firstplugin.skyblock.market.trade
 
 import firstplugin.skyblock.items.SkyblockItem
 
