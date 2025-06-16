@@ -1,9 +1,7 @@
 package firstplugin.skyblock.economy
 
-import kotlinx.serialization.Serializable
 import kotlin.math.floor
 
-@Serializable
 class Coins(
     val maxBalance: Long = Long.MAX_VALUE,
 ) {
