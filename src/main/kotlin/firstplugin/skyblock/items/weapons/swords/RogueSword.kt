@@ -22,6 +22,7 @@ class RogueSword(
 ) : Sword(Material.GOLDEN_SWORD) {
     // Initialize properties before setupItem()
     override val itemRarity: Rarity = Rarity.COMMON
+    override val internalID: String = "ROGUE_SWORD"
     override val itemName: String = "Rogue Sword"
 
     override val ability =
