@@ -10,10 +10,11 @@ import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
 
-class EnchantmentBook(
+abstract class EnchantmentBook(
     override val holder: ItemHolder,
 ) : SkyblockItem(Material.ENCHANTED_BOOK) {
     override val itemRarity: Rarity = Rarity.COMMON // Default rarity, can be overridden
+
     override val itemCategory: ItemCategory = ItemCategory.ENCHANTMENT_BOOK
 
     override fun loreDescription(): SkyblockLore {

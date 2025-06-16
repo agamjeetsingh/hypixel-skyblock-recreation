@@ -5,11 +5,8 @@ package firstplugin.skyblock.attributes.staticAttributes
 import firstplugin.skyblock.attributes.Attributable
 import firstplugin.skyblock.attributes.AttributeCategory
 import firstplugin.skyblock.attributes.StaticAttribute
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import net.kyori.adventure.text.format.NamedTextColor
 
-@Serializable
 class Strength(
     @Transient
     override val attributeHolder: Attributable? = null,

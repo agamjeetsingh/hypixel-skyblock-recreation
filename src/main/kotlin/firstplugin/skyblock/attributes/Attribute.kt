@@ -6,11 +6,8 @@ import firstplugin.skyblock.attributes.dynamicAttributes.Health
 import firstplugin.skyblock.attributes.dynamicAttributes.Intelligence
 import firstplugin.skyblock.attributes.staticAttributes.*
 import firstplugin.skyblock.entity.CombatEntity
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import net.kyori.adventure.text.format.NamedTextColor
 
-@Serializable
 abstract class Attribute {
     @Transient
     open val attributeHolder: Attributable? = null
@@ -45,6 +42,16 @@ abstract class Attribute {
     abstract val symbol: String
 
     abstract val color: NamedTextColor
+
+    val loreColor: NamedTextColor
+        get() =
+            if (attributeCategory == AttributeCategory.COMBAT ||
+                this is Damage
+            ) {
+                NamedTextColor.RED
+            } else {
+                NamedTextColor.GREEN
+            }
 
     val constantModifiers: MutableList<ConstantAttributeEffect> =
         mutableListOf()
@@ -219,6 +226,7 @@ abstract class Attribute {
                 Damage::class,
                 FarmingFortune::class,
                 MiningFortune::class,
+                MiningSpeed::class,
             )
 
         // Helper to get a user-friendly name from an attribute class

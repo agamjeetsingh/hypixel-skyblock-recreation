@@ -1,3 +1,5 @@
+@file:Suppress("ktlint:standard:no-wildcard-imports")
+
 package firstplugin.skyblock.display
 
 import firstplugin.plugin.SkyblockPlugin
@@ -10,6 +12,7 @@ import kotlin.math.roundToInt
 
 private const val UPDATE_ACTION_BAR_EVERY_TICKS = 5L
 private const val NOT_ENOUGH_MANA_DURATION = 40L
+private const val SKILL_XP_GAIN_DURATION = 20L
 
 class ActionBarManager(
     private val plugin: SkyblockPlugin,
@@ -23,6 +26,21 @@ class ActionBarManager(
                 entity.notEnoughMana = false
             }
         }.runTaskLater(plugin, NOT_ENOUGH_MANA_DURATION)
+    }
+
+    // TODO - Find a better way for these things
+    // TODO - This will make all players show XP Gain which is unintended behaviour. Find a better way
+    private var showXPGain: Boolean = false
+    private var xpGainComponent: Component? = null
+
+    fun skillXPGain(skillXPGainComponent: Component) {
+        showXPGain = true
+        xpGainComponent = skillXPGainComponent
+        object : BukkitRunnable() {
+            override fun run() {
+                showXPGain = false
+            }
+        }.runTaskLater(plugin, SKILL_XP_GAIN_DURATION)
     }
 
     fun initialize() {
@@ -75,16 +93,24 @@ class ActionBarManager(
         )
 
         // Add defense to action bar
-        actionBar.append(
-            Component
-                .text("${player.defense.value.roundToInt()}")
-                .color(player.defense.color),
-        )
-        actionBar.append(
-            Component
-                .text("${player.defense.symbol} Defense     ")
-                .color(player.defense.color),
-        )
+        if (!showXPGain) {
+            actionBar.append(
+                Component
+                    .text("${player.defense.value.roundToInt()}")
+                    .color(player.defense.color),
+            )
+            actionBar.append(
+                Component
+                    .text("${player.defense.symbol} Defense     ")
+                    .color(player.defense.color),
+            )
+        } else {
+            actionBar.append(
+                xpGainComponent!!,
+                Component
+                    .text("     "),
+            )
+        }
 
         // Add mana to action bar
         if (!player.notEnoughMana) {

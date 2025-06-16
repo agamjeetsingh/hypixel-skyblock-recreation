@@ -12,6 +12,7 @@ class WoodenSword(
     override val holder: ItemHolder,
 ) : Sword(Material.WOODEN_SWORD) {
     override val itemRarity: Rarity = Rarity.COMMON
+    override val internalID: String = "WOOD_SWORD"
 
     init {
         attributes.getAttribute<Damage>()!!.addEffect(ConstantAttributeEffect(20.0))

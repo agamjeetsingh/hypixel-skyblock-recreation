@@ -8,12 +8,9 @@ import firstplugin.skyblock.attributes.Attribute
 import firstplugin.skyblock.attributes.Attribute.Companion.setupDefaultPlayerAttributes
 import firstplugin.skyblock.attributes.damage.DamageType
 import firstplugin.skyblock.attributes.damage.DealtDamage
-import kotlinx.serialization.Serializable
-import kotlinx.serialization.Transient
 import org.bukkit.entity.LivingEntity
 import org.bukkit.scheduler.BukkitRunnable
 
-@Serializable
 open class CombatEntity(
     val entity: LivingEntity,
 ) : SkyblockEntity(entity),

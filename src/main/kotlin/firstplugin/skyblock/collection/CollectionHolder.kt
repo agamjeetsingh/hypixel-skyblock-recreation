@@ -1,3 +1,5 @@
 package firstplugin.skyblock.collection
 
-interface CollectionHolder
+interface CollectionHolder {
+    val collections: List<Collection>
+}

@@ -3,15 +3,20 @@
 package firstplugin.skyblock.entity
 
 import firstplugin.ServerPlayer
+import firstplugin.skyblock.collection.Collection
+import firstplugin.skyblock.collection.CollectionHolder
+import firstplugin.skyblock.crafting.Crafter
+import firstplugin.skyblock.crafting.CrafterDelegate
 import firstplugin.skyblock.economy.BankAccount
 import firstplugin.skyblock.economy.Coins
 import firstplugin.skyblock.economy.MoneyHolder
+import firstplugin.skyblock.location.Explorer
+import firstplugin.skyblock.location.ExplorerDelegate
 import firstplugin.skyblock.minion.MinionHolder
 import firstplugin.skyblock.minion.MinionHolderDelegate
 import firstplugin.skyblock.skill.Skill
 import firstplugin.skyblock.skill.SkillHolder
 import firstplugin.skyblock.xp.SkyblockLevel
-import kotlinx.serialization.Serializable
 import org.bukkit.entity.Player
 
 /**
@@ -20,7 +25,6 @@ import org.bukkit.entity.Player
  * NOTE: The health property of SkyblockPlayer refers to vanilla bukkit player health.
  * The skyblock health property is named `sbHealth`.
  */
-@Serializable
 class SkyblockPlayer(
     val serverPlayer: ServerPlayer,
 ) : CombatEntity(serverPlayer),
@@ -28,7 +32,10 @@ class SkyblockPlayer(
     ItemHolder,
     MoneyHolder,
     SkillHolder,
-    MinionHolder by MinionHolderDelegate() {
+    MinionHolder by MinionHolderDelegate(),
+    Explorer by ExplorerDelegate(),
+    Crafter by CrafterDelegate(),
+    CollectionHolder {
     constructor(player: Player) : this(ServerPlayer(player))
 
     /**
@@ -58,4 +65,6 @@ class SkyblockPlayer(
     override val skills: List<Skill> = Skill.setupSkills(this)
 
     override val skyblockLevel = SkyblockLevel(this)
+
+    override val collections: List<Collection> = Collection.setupCollections(this)
 }

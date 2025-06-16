@@ -93,6 +93,7 @@ class JsonPlayerDataService(
     private val gson = GsonBuilder()
         .setPrettyPrinting()
         .serializeNulls()
+        .disableJdkUnsafe() // Avoid accessing internal Java fields
         .registerTypeAdapter(Attribute::class.java, AttributeTypeAdapter())
         .registerTypeAdapter(AttributeEffect::class.java, AttributeEffectTypeAdapter())
         .create()
