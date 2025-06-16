@@ -17,6 +17,7 @@ import org.bukkit.attribute.AttributeModifier
 import org.bukkit.inventory.ItemFlag
 import org.bukkit.inventory.ItemStack
 import org.bukkit.inventory.meta.ItemMeta
+import org.bukkit.persistence.PersistentDataType
 
 abstract class SkyblockItem(
     open val material: Material,
@@ -26,8 +27,15 @@ abstract class SkyblockItem(
     /**
      * Call this method from the subclass's init block AFTER all properties have been initialized
      */
-    protected fun setupItem() {
+    protected open fun setupItem() {
         val meta = itemMeta
+
+        meta.persistentDataContainer.set(
+            NamespacedKey("firstplugin", "item.internal_id.${internalID.lowercase()}"),
+            PersistentDataType.STRING,
+            internalID,
+        )
+
         val name = generateCustomName()
         meta.displayName(name)
 
@@ -57,6 +65,8 @@ abstract class SkyblockItem(
     }
 
     abstract val itemRarity: Rarity
+
+    abstract val internalID: String
 
     private val rarityComponent: Component
         get() {
@@ -89,7 +99,7 @@ abstract class SkyblockItem(
             return newWords.joinToString(" ")
         }
 
-    private val headerLore: SkyblockLore
+    protected open val headerLore: SkyblockLore
         get() {
             val skyblockLore = SkyblockLore()
             if (this is BrewingIngredient) {
@@ -101,7 +111,7 @@ abstract class SkyblockItem(
             return skyblockLore
         }
 
-    private val footerLore: SkyblockLore
+    protected open val footerLore: SkyblockLore
         get() {
             val skyblockLore = SkyblockLore()
             if (this is Reforgeable && !isReforged) {

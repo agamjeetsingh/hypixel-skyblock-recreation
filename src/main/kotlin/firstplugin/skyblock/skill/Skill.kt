@@ -3,18 +3,18 @@
  */
 package firstplugin.skyblock.skill
 
+import firstplugin.plugin.SkyblockPlugin
 import firstplugin.skyblock.attributes.Attribute
 import firstplugin.skyblock.attributes.AttributeEffect
 import firstplugin.skyblock.entity.SkyblockPlayer
-import firstplugin.skyblock.utils.NumberFormat
-import firstplugin.skyblock.utils.RomanNumerals
-import firstplugin.skyblock.utils.StringUtils
-import kotlinx.serialization.Serializable
+import firstplugin.skyblock.utils.sendMessage
+import firstplugin.skyblock.xp.SkyblockXPReward
+import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
-import net.kyori.adventure.text.format.TextDecoration
 import org.bukkit.Material
+import java.util.*
 
 /**
  * Maximum level that a skill can reach
@@ -45,7 +45,6 @@ const val SKILL_LEVEL_UP_ARROW: String = "➜"
  *
  * @property player The SkyblockPlayer who owns this skill
  */
-@Serializable
 abstract class Skill(
     val player: SkyblockPlayer,
 ) {
@@ -58,29 +57,6 @@ abstract class Skill(
      * The special display name for this skill, used in level-up messages (e.g., "Warrior", "Spelunker", etc.)
      */
     abstract val specialSkillName: String
-
-    /**
-     * List of text components describing rewards gained when leveling up
-     */
-    val rewardMessage: List<TextComponent>
-        get() {
-            val finalMessage: MutableList<TextComponent> = mutableListOf()
-
-            primarySkillRewardMessage()?.let { finalMessage.addAll(it) }
-                ?: finalMessage.add(alternativePrimaryRewardMessage()!!)
-
-            finalMessage.add(secondarySkillRewardMessage())
-
-            finalMessage.addAll(otherRewardsMessage())
-
-            finalMessage.add(coinRewardMessage())
-
-            finalMessage.add(skyblockXPGainMessage())
-
-            return finalMessage
-        }
-
-    protected open fun otherRewardsMessage(): List<TextComponent> = listOf()
 
     /**
      * The primary stat for this skill. Some skills like Taming do not have a `primaryStat`
@@ -159,7 +135,10 @@ abstract class Skill(
      *
      * @param amount The amount of XP to add
      */
-    fun gainXP(amount: Double) {
+    fun gainXP(
+        amount: Double,
+        plugin: SkyblockPlugin,
+    ) {
         var xpToBeGained = amount
         while (xpToBeGained > 0) {
             if (level >= MAX_SKILL_LEVEL) {
@@ -175,6 +154,21 @@ abstract class Skill(
                 xpToBeGained = 0.0
             }
         }
+        player.sendMessage(
+            Component
+                .text("+$amount")
+                .color(NamedTextColor.DARK_AQUA),
+        )
+        val pitch: Float = (2 - Random().nextDouble() / 10).toFloat()
+
+        player.playSound(player.location, org.bukkit.Sound.ENTITY_EXPERIENCE_ORB_PICKUP, 1f, pitch)
+
+        val actionBarManager = plugin.actionBarManager
+        actionBarManager.skillXPGain(
+            Component
+                .text("+$amount")
+                .color(NamedTextColor.DARK_AQUA),
+        )
     }
 
     /**
@@ -206,106 +200,7 @@ abstract class Skill(
 
         otherRewards()
 
-        player.sendMessage(
-            Component.join(
-                net.kyori.adventure.text.JoinConfiguration
-                    .newlines(),
-                congratulationsMessage(),
-            ),
-        )
-    }
-
-    /**
-     * Creates a formatted message to display when a player levels up a skill.
-     * The message includes:
-     * - A decorative border
-     * - The skill name and level change
-     * - A list of rewards
-     * - Another decorative border
-     *
-     * @return A list of TextComponent objects representing each line of the message
-     */
-    private fun congratulationsMessage(): List<Component> {
-        val totalMessage: MutableList<TextComponent> = mutableListOf()
-        var component = Component.text("")
-
-        // Top border
-        component =
-            component
-                .append(
-                    Component
-                        .text(CHAT_BORDER_SYMBOL.repeat(MAX_BORDERS_IN_A_SINGLE_LINE))
-                        .color(NamedTextColor.DARK_AQUA)
-                        .decoration(TextDecoration.ITALIC, false),
-                )
-        totalMessage.add(component)
-
-        // Skill level up header
-        component =
-            Component
-                .text("")
-                .append(
-                    Component
-                        .text(" SKILL LEVEL UP ")
-                        .color(NamedTextColor.AQUA)
-                        .decoration(TextDecoration.BOLD, true)
-                        .decoration(TextDecoration.ITALIC, false),
-                ).append(
-                    Component
-                        .text(skillName)
-                        .color(NamedTextColor.DARK_AQUA)
-                        .decoration(TextDecoration.ITALIC, false),
-                ).append(
-                    Component
-                        .text(" ${RomanNumerals.toRoman(level - 1)}")
-                        .color(NamedTextColor.DARK_GRAY)
-                        .decoration(TextDecoration.ITALIC, false),
-                ).append(
-                    Component
-                        .text(SKILL_LEVEL_UP_ARROW)
-                        .color(NamedTextColor.DARK_GRAY)
-                        .decoration(TextDecoration.BOLD, true)
-                        .decoration(TextDecoration.ITALIC, false),
-                ).append(
-                    Component
-                        .text(RomanNumerals.toRoman(level))
-                        .color(NamedTextColor.DARK_AQUA)
-                        .decoration(TextDecoration.ITALIC, false),
-                )
-        totalMessage.add(component)
-
-        // Empty line for spacing
-        totalMessage.add(Component.text(""))
-
-        // Rewards header
-        component =
-            Component
-                .text(" REWARDS")
-                .color(NamedTextColor.GREEN)
-                .decoration(TextDecoration.BOLD, true)
-                .decoration(TextDecoration.ITALIC, false)
-        totalMessage.add(component)
-
-        // Special skill name and level
-        component =
-            Component
-                .text("  $specialSkillName ${RomanNumerals.toRoman(level)}")
-                .color(NamedTextColor.YELLOW)
-                .decoration(TextDecoration.ITALIC, false)
-        totalMessage.add(component)
-
-        // Add all reward messages
-        totalMessage.addAll(rewardMessage)
-
-        // Bottom border
-        totalMessage.add(
-            Component
-                .text(CHAT_BORDER_SYMBOL.repeat(MAX_BORDERS_IN_A_SINGLE_LINE))
-                .color(NamedTextColor.DARK_AQUA)
-                .decoration(TextDecoration.ITALIC, false),
-        )
-
-        return totalMessage
+        player.sendMessage(SkillRewardMessage(this).congratulationsMessage())
     }
 
     /**
@@ -320,82 +215,22 @@ abstract class Skill(
      * Higher skill levels award more Skyblock XP
      */
     private fun skyblockLevelReward() {
-        player.skyblockLevel.gainXP(skyblockLevelRewardAmount())
+        skyblockLevelXPReward.applyRewardTo(player)
     }
 
-    private fun skyblockLevelRewardAmount(): Int =
-        when {
-            level <= 10 -> 5
-            level <= 25 -> 10
-            level <= 50 -> 20
-            level <= 60 -> 30
-            // Shouldn't happen but must add an else block
-            else -> 0
-        }
-
-    protected fun coinRewardMessage(): TextComponent =
-        Component
-            .text("  +")
-            .color(NamedTextColor.DARK_GRAY)
-            .decoration(TextDecoration.ITALIC, false)
-            .append(
-                Component
-                    .text(NumberFormat.formatWithCommas(coinReward[level]!!))
-                    .color(NamedTextColor.GOLD)
-                    .decoration(TextDecoration.ITALIC, false),
-            ).append(
-                Component
-                    .text(" Coins")
-                    .color(NamedTextColor.GRAY)
-                    .decoration(TextDecoration.ITALIC, false),
-            )
-
-    protected fun skyblockXPGainMessage(): TextComponent =
-        Component
-            .text("  +")
-            .color(NamedTextColor.DARK_GRAY)
-            .decoration(TextDecoration.ITALIC, false)
-            .append(
-                Component
-                    .text("${skyblockLevelRewardAmount().toInt()} Skyblock XP")
-                    .color(NamedTextColor.AQUA)
-                    .decoration(TextDecoration.ITALIC, false),
-            )
-
-    protected fun secondarySkillRewardMessage(): TextComponent {
-        val secondaryStatClassName = secondaryStat::class.simpleName!!
-        val spacedName = StringUtils.camelCaseToSpaced(secondaryStatClassName)
-
-        val clazz = secondaryStat::class.java
-        // Just needed for secondaryStatNewInstance.prettyPrintValueForMenu
-        val secondaryStatNewInstance = clazz.getDeclaredConstructor().newInstance()
-        secondaryStatNewInstance.addEffect(secondaryStatReward)
-
-        return Component
-            .text("  +")
-            .color(NamedTextColor.DARK_GRAY)
-            .decoration(TextDecoration.ITALIC, false)
-            .append(
-                Component
-                    .text("${secondaryStatNewInstance.prettyPrintValueForMenu} ")
-                    .color(NamedTextColor.GREEN)
-                    .decoration(TextDecoration.ITALIC, false),
-            ).append(
-                Component
-                    .text("${secondaryStat.symbol} ")
-                    .color(secondaryStat.color)
-                    .decoration(TextDecoration.ITALIC, false),
-            ).append(
-                Component
-                    .text(" $spacedName")
-                    .color(secondaryStat.color)
-                    .decoration(TextDecoration.ITALIC, false),
-            )
-    }
+    val skyblockLevelXPReward
+        get() = SkyblockXPReward(skyblockLevelRewardAmount(level))
 
     abstract fun primarySkillRewardMessage(): List<TextComponent>?
 
-    protected open fun alternativePrimaryRewardMessage(): TextComponent? = null
+    open fun alternativePrimaryRewardMessage(): TextComponent? = null
+
+    class SkillRequirement<T : Skill>(
+        val skillClass: Class<T>,
+        val levelRequired: Int = 0,
+    )
+
+    open fun otherRewardsMessage(): List<TextComponent> = listOf()
 
     /**
      * Companion object containing static data and utility methods for all skills
@@ -412,6 +247,16 @@ abstract class Skill(
             listOfSkills.add(MiningSkill(player))
             return listOfSkills
         }
+
+        fun skyblockLevelRewardAmount(level: Int): Int =
+            when {
+                level <= 10 -> 5
+                level <= 25 -> 10
+                level <= 50 -> 20
+                level <= 60 -> 30
+                // Shouldn't happen but must add an else block
+                else -> 0
+            }
 
         /**
          * Map containing the XP required to level up to each level.

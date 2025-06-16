@@ -1,15 +1,20 @@
 package firstplugin.skyblock.collection
 
+import firstplugin.skyblock.entity.SkyblockPlayer
+import firstplugin.skyblock.rewards.SkyblockReward
+
 abstract class Collection(
     val holder: CollectionHolder,
 ) {
-    // Not sure if material is the best way to represent this TODO()
     abstract val collectionItem: CollectionItem
 
     var tier: Int = 0
         private set
 
-    abstract val maxTier: Int
+    abstract val skyblockRewards: Map<Int, List<SkyblockReward>>
+
+    val maxTier: Int
+        get() = skyblockRewards.keys.max()
 
     var collectionProgress: Int = 0
         private set
@@ -32,7 +37,8 @@ abstract class Collection(
     }
 
     private fun addRewards() {
-        TODO()
+        val skyblockPlayer = holder as? SkyblockPlayer ?: return
+        skyblockRewards[tier]!!.forEach { it.applyRewardTo(skyblockPlayer) }
     }
 
     /**
@@ -62,6 +68,11 @@ abstract class Collection(
         /**
          * The Skyblock XP gained for every unlocked collection
          */
-        private val SKYBLOCK_XP_REWARD = 4
+        private val SKYBLOCK_XP_REWARD_AMOUNT = 4
+
+        fun setupCollections(collectionHolder: CollectionHolder): List<Collection> {
+            return listOf()
+            TODO()
+        }
     }
 }

@@ -10,4 +10,6 @@ enum class ItemCategory {
     ENCHANTMENT_BOOK,
     MINION,
     MINION_FUEL,
+    PICKAXE,
+    BLOCK,
 }

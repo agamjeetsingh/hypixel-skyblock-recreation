@@ -63,3 +63,9 @@ val CombatEntity.damage: Damage
         val attr = attributes.getAttribute<Damage>()
         return attr ?: throw IllegalStateException("Damage attribute not found")
     }
+
+val CombatEntity.miningSpeed: MiningSpeed
+    get() {
+        val attr = attributes.getAttribute<MiningSpeed>()
+        return attr ?: throw IllegalStateException("Mining Speed attribute not found")
+    }

@@ -5,9 +5,7 @@ import firstplugin.skyblock.attributes.dynamicAttributes.Health
 import firstplugin.skyblock.attributes.getAttribute
 import firstplugin.skyblock.attributes.staticAttributes.Strength
 import firstplugin.skyblock.entity.SkyblockPlayer
-import kotlinx.serialization.Serializable
 
-@Serializable
 class SkyblockLevel(
     val holder: SkyblockPlayer,
 ) {
