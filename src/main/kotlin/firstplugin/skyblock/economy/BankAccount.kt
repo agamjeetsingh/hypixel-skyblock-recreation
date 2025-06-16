@@ -1,8 +1,5 @@
 package firstplugin.skyblock.economy
 
-import kotlinx.serialization.Serializable
-
-@Serializable
 class BankAccount(
     val owner: MoneyHolder,
 ) {
