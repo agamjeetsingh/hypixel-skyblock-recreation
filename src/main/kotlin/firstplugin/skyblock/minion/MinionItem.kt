@@ -34,7 +34,20 @@ abstract class MinionItem(
      * The "Place this minion and it will start ..." text in the item lore.
      * Example: "Place this minion and it will start generating and mining cobblestone!"
      */
-    protected abstract val placeThisMinionComponent: Component
+    protected open val placeThisMinionComponent: Component
+        get() {
+            val collectionItemString = minion.collectionItem::class.simpleName?.lowercase()
+            var baseComponent =
+                when (minion.minionType) {
+                    MinionType.MINING ->
+                        Component.text(
+                            "Place this minion and it will start generating and mining $collectionItemString!",
+                        )
+                    else -> Component.text("")
+                }
+            baseComponent = baseComponent.color(NamedTextColor.GRAY).decoration(TextDecoration.ITALIC, false)
+            return baseComponent
+        }
 
     /**
      * The texture list for the minion skin
@@ -45,7 +58,7 @@ abstract class MinionItem(
      * Method to apply the minion skin texture to the player head item.
      * This handles preserving the item's display name and lore after applying the skin.
      */
-    protected fun applyMinionTexture() {
+    private fun applyMinionTexture() {
         // Get the current item meta
         val currentMeta = this.itemMeta
 
@@ -71,10 +84,10 @@ abstract class MinionItem(
     }
 
     /**
-     * Initialize the minion item by setting up its properties and applying the texture.
+     * Initialise the minion item by setting up its properties and applying the texture.
      * This should be called in the init block of all subclasses.
      */
-    protected fun initializeMinionItem() {
+    protected fun initialiseMinionItem() {
         // Set up the basic item properties
         setupItem()
 
@@ -90,12 +103,12 @@ abstract class MinionItem(
             when {
                 minion.minionType == MinionType.MINING ->
                     Component
-                        .text("Requires an open area to place ${minion.generatesMaterial.toString().lowercase()}.")
+                        .text("Requires an open area to place ${minion.collectionItem::class.simpleName?.lowercase()}.")
                         .color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC, false)
                 else ->
                     Component
-                        .text("Requires an open area to do its thing.")
+                        .text("Requires an open area to work.")
                         .color(NamedTextColor.GRAY)
                         .decoration(TextDecoration.ITALIC, false)
             }
@@ -181,8 +194,8 @@ abstract class MinionItem(
     override val itemName: String
         get() {
             var className = StringUtils.camelCaseToSpaced(this.javaClass.simpleName)
-            className = className.removeSuffix(" Item")
+            className = className.split(" ").firstOrNull() ?: return "null"
             val tierInRoman = RomanNumerals.toRoman(tier)
-            return "$className $tierInRoman"
+            return "$className Minion $tierInRoman"
         }
 }

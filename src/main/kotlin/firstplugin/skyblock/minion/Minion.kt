@@ -1,10 +1,12 @@
 package firstplugin.skyblock.minion
 
+import firstplugin.skyblock.collection.CollectionItem
+import firstplugin.skyblock.items.SkyblockItem
 import firstplugin.skyblock.skill.Skill
-import org.bukkit.Material
+import org.bukkit.Location
 
 abstract class Minion(
-    material: Material,
+    val collectionItem: CollectionItem,
     val holder: MinionHolder,
 ) {
     /**
@@ -68,12 +70,6 @@ abstract class Minion(
     abstract val minionType: MinionType
 
     /**
-     * The primary material that the minion generates. For example, this would be gravel
-     * for a Gravel Minion (and not flint).
-     */
-    abstract val generatesMaterial: Material
-
-    /**
      * Stores the time between Minion actions in seconds for every tier.
      */
     protected abstract val timeBetweenActionsMapInSeconds: Map<Int, Int>
@@ -98,7 +94,7 @@ abstract class Minion(
      * The maximum amount of resources that the minion can keep in its storage.
      */
     val maxStorage: Int
-        get() = maxStorageInStacks * generatesMaterial.maxStackSize
+        get() = maxStorageInStacks * ((collectionItem as? SkyblockItem)?.maxStackSize ?: 1)
 
     /**
      * The maximum amount of stacks of resources that the minion can keep in its storage.
@@ -138,14 +134,25 @@ abstract class Minion(
     abstract var minionItem: MinionItem
         protected set
 
+    /**
+     * Represents the location of the [Minion] when it is placed.
+     * It is `null` exactly when [placedOnGround] is `false`.
+     */
+    var location: Location? = null
+
+    /**
+     * Whether the [Minion] is placed on the ground (and hence actively trying to generate resources) or not.
+     */
+    var placedOnGround: Boolean = false
+
     companion object {
-        const val DEFAULT_MINION_RANGE = 5
+        private const val DEFAULT_MINION_RANGE = 5
 
         /**
          * Stores the storage capacity of the minion as a map.
          * Key denotes tier and the Value denotes the number of stacks in the storage.
          */
-        val STORAGE_LEVEL_MAP: Map<Int, Int> =
+        private val STORAGE_LEVEL_MAP: Map<Int, Int> =
             mapOf(
                 1 to 1,
                 2 to 3,
@@ -160,5 +167,7 @@ abstract class Minion(
                 11 to 15,
                 12 to 15,
             )
+
+        const val MINION_CONVERSATION_COOLDOWN_IN_TICKS = 20 * 60L
     }
 }
