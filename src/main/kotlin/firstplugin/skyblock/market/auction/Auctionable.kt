@@ -1,4 +1,4 @@
-package firstplugin.skyblock.auction
+package firstplugin.skyblock.market.auction
 
 import firstplugin.skyblock.items.SkyblockItem
 

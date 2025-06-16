@@ -1,4 +1,4 @@
-package firstplugin.skyblock.bazaar
+package firstplugin.skyblock.market.bazaar
 
 import firstplugin.skyblock.items.SkyblockItem
 
