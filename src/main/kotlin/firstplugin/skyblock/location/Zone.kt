@@ -8,7 +8,16 @@ import net.kyori.adventure.text.format.TextDecoration
 abstract class Zone {
     abstract val name: String
     abstract val color: NamedTextColor
-    abstract val questLines: SkyblockLore
+    abstract val questLinesWithoutBulletPoints: SkyblockLore
+
+    private val questLines: SkyblockLore
+        get() {
+            val skyblockLore = SkyblockLore()
+            for (component in skyblockLore) {
+                skyblockLore.addLore(BULLET_POINT_COMPONENT.append(component))
+            }
+            return skyblockLore
+        }
 
     val discoveryText: SkyblockLore
         get() {
@@ -42,8 +51,13 @@ abstract class Zone {
     companion object {
         private const val ZONE_SYMBOL: String = "⏣"
 
-        @JvmStatic
-        protected val BULLET_POINT: String = "■"
+        private const val BULLET_POINT: String = "■"
+
+        private val BULLET_POINT_COMPONENT: Component =
+            Component
+                .text("$BULLET_POINT ")
+                .color(NamedTextColor.GRAY)
+                .decoration(TextDecoration.ITALIC, false)
 
         private val newAreaDiscovered: Component =
             Component
