@@ -8,20 +8,7 @@ import net.kyori.adventure.text.format.TextDecoration
 abstract class Zone {
     abstract val name: String
     abstract val color: NamedTextColor
-    val questLines: SkyblockLore
-        get() {
-            val skyblockLore = SkyblockLore()
-            for (questLine in questLinesString) {
-                skyblockLore.addLore(
-                    Component
-                        .text("$ZONE_SYMBOL $questLine")
-                        .color(NamedTextColor.WHITE)
-                        .decoration(TextDecoration.ITALIC, false),
-                )
-            }
-            return skyblockLore
-        }
-    abstract val questLinesString: List<String>
+    abstract val questLines: SkyblockLore
 
     val discoveryText: SkyblockLore
         get() {
