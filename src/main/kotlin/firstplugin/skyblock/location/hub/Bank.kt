@@ -1,5 +1,6 @@
 package firstplugin.skyblock.location.hub
 
+import firstplugin.skyblock.location.SkyblockLocation
 import firstplugin.skyblock.location.Zone
 import firstplugin.skyblock.utils.SkyblockLore
 import net.kyori.adventure.text.Component
@@ -32,4 +33,6 @@ class Bank : Zone() {
             )
             return skyblockLore
         }
+
+    override val location: SkyblockLocation = Hub()
 }
