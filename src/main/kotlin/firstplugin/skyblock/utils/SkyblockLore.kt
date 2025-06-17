@@ -7,6 +7,9 @@ import org.bukkit.entity.Player
 
 // TODO - Might need to add a space between sentences of different components (and in some other cases too, think hard!)
 
+/**
+ * This class is used to represent any item lore or chat message. TODO - Complete documentation
+ */
 class SkyblockLore(
     private val maxLineLength: Int = INVENTORY_MAX_LINE_LENGTH,
 ) {
@@ -33,6 +36,8 @@ class SkyblockLore(
 
     val lore: List<Component>
         get() = _lore.toList()
+
+    operator fun iterator() = lore.iterator()
 
     val lastIndent: Int
         get() = indentations.lastOrNull() ?: 0
