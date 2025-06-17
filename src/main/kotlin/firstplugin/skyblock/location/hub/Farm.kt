@@ -26,9 +26,16 @@ class Farm : Zone() {
             )
             skyblockLore.addLore(
                 Component
-                    .text("$BULLET_POINT Travel to The Barn.")
+                    .text("$BULLET_POINT Travel to ")
                     .color(NamedTextColor.WHITE)
-                    .decoration(TextDecoration.ITALIC, false), // TODO: Replace The Barn with the actual class
+                    .decoration(TextDecoration.ITALIC, false)
+                    .append(TheBarn().nameComponent)
+                    .append(
+                        Component
+                            .text(".")
+                            .color(NamedTextColor.WHITE)
+                            .decoration(TextDecoration.ITALIC, false),
+                    ),
             )
             return skyblockLore
         }
