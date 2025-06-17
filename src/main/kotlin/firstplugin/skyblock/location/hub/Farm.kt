@@ -9,24 +9,24 @@ import net.kyori.adventure.text.format.TextDecoration
 class Farm : Zone() {
     override val name: String = "Farm"
     override val color: NamedTextColor = NamedTextColor.AQUA
-    override val questLines: SkyblockLore
+    override val questLinesWithoutBulletPoints: SkyblockLore
         get() {
             val skyblockLore = SkyblockLore()
             skyblockLore.addLore(
                 Component
-                    .text("$BULLET_POINT Talk to the Farmer.")
+                    .text("Talk to the Farmer.")
                     .color(NamedTextColor.WHITE)
                     .decoration(TextDecoration.ITALIC, false),
             )
             skyblockLore.addLore(
                 Component
-                    .text("$BULLET_POINT Gather Wheat.")
+                    .text("Gather Wheat.")
                     .color(NamedTextColor.WHITE)
                     .decoration(TextDecoration.ITALIC, false),
             )
             skyblockLore.addLore(
                 Component
-                    .text("$BULLET_POINT Travel to ")
+                    .text("Travel to ")
                     .color(NamedTextColor.WHITE)
                     .decoration(TextDecoration.ITALIC, false)
                     .append(TheBarn().nameComponent)

@@ -9,7 +9,7 @@ import net.kyori.adventure.text.format.TextDecoration
 class AuctionHouse : Zone() {
     override val name: String = "Auction House"
     override val color: NamedTextColor = NamedTextColor.GOLD
-    override val questLines: SkyblockLore
+    override val questLinesWithoutBulletPoints: SkyblockLore
         get() {
             val skyblockLore = SkyblockLore()
             skyblockLore.addLore(
