@@ -28,7 +28,7 @@ class TheBarn : Zone() {
                 Component
                     .text("$BULLET_POINT Milk cows.")
                     .color(NamedTextColor.WHITE)
-                    .decoration(TextDecoration.ITALIC, false), // TODO: Replace The Barn with the actual class
+                    .decoration(TextDecoration.ITALIC, false),
             )
             return skyblockLore
         }
