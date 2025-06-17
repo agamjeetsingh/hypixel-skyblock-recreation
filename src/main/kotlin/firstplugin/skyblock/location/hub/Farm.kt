@@ -26,13 +26,10 @@ class Farm : Zone() {
             )
             skyblockLore.addLore(
                 Component
-                    .text(),
+                    .text("Travel to The Barn.")
+                    .color(NamedTextColor.WHITE)
+                    .decoration(TextDecoration.ITALIC, false), // TODO: Replace The Barn with the actual class
             )
+            return skyblockLore
         }
-    override val questLinesString: List<String> =
-        listOf(
-            "$BULLET_POINT Talk to the Farmer.",
-            "$BULLET_POINT Gather Wheat.",
-            "Travel to The Barn.", // TODO: Replace The Barn with the actual class
-        )
 }
