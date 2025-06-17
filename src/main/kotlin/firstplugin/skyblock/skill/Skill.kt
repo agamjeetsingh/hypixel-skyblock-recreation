@@ -9,7 +9,6 @@ import firstplugin.skyblock.attributes.AttributeEffect
 import firstplugin.skyblock.entity.SkyblockPlayer
 import firstplugin.skyblock.utils.sendMessage
 import firstplugin.skyblock.xp.SkyblockXPReward
-import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
@@ -225,7 +224,7 @@ abstract class Skill(
 
     open fun alternativePrimaryRewardMessage(): TextComponent? = null
 
-    class SkillRequirement<T : Skill>(
+    class Requirement<T : Skill>(
         val skillClass: Class<T>,
         val levelRequired: Int = 0,
     )
