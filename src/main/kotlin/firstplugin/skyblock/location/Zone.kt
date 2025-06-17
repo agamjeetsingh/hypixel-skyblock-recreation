@@ -32,6 +32,13 @@ abstract class Zone {
             return lore
         }
 
+    val nameComponent: Component
+        get() =
+            Component
+                .text(name)
+                .color(color)
+                .decoration(TextDecoration.ITALIC, false)
+
     companion object {
         private const val ZONE_SYMBOL: String = "⏣"
 
