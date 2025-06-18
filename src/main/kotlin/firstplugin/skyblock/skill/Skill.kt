@@ -14,6 +14,7 @@ import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Maximum level that a skill can reach
@@ -224,8 +225,8 @@ abstract class Skill(
 
     open fun alternativePrimaryRewardMessage(): TextComponent? = null
 
-    class Requirement<T : Skill>(
-        val skillClass: Class<T>,
+    class Requirement<out T : Skill>(
+        val skillClass: KClass<@UnsafeVariance T>,
         val levelRequired: Int = 0,
     )
 
