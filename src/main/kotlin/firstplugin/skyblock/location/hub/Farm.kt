@@ -8,7 +8,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-class Farm : Zone() {
+object Farm : Zone() {
     override val name: String = "Farm"
     override val color: NamedTextColor = NamedTextColor.AQUA
     override val questLinesWithoutBulletPoints: SkyblockLore
@@ -31,7 +31,7 @@ class Farm : Zone() {
                     .text("Travel to ")
                     .color(NamedTextColor.WHITE)
                     .decoration(TextDecoration.ITALIC, false)
-                    .append(TheBarn().nameComponent)
+                    .append(TheBarn.nameComponent)
                     .append(
                         Component
                             .text(".")
@@ -42,5 +42,5 @@ class Farm : Zone() {
             return skyblockLore
         }
 
-    override val location: SkyblockLocation = Hub()
+    override val location: SkyblockLocation = Hub
 }

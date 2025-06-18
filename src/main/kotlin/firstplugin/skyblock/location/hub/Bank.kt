@@ -7,7 +7,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-class Bank : Zone() {
+object Bank : Zone() {
     override val name: String = "Bank"
     override val color: NamedTextColor = NamedTextColor.GOLD
     override val questLinesWithoutBulletPoints: SkyblockLore
@@ -34,5 +34,5 @@ class Bank : Zone() {
             return skyblockLore
         }
 
-    override val location: SkyblockLocation = Hub()
+    override val location: SkyblockLocation = Hub
 }

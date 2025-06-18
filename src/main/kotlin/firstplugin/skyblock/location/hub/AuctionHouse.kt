@@ -7,7 +7,7 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-class AuctionHouse : Zone() {
+object AuctionHouse : Zone() {
     override val name: String = "Auction House"
     override val color: NamedTextColor = NamedTextColor.GOLD
     override val questLinesWithoutBulletPoints: SkyblockLore
@@ -27,5 +27,6 @@ class AuctionHouse : Zone() {
             )
             return skyblockLore
         }
-    override val location: SkyblockLocation = Hub()
+
+    override val location: SkyblockLocation = Hub
 }
