@@ -8,7 +8,7 @@ import kotlin.reflect.KClass
  * Refers to a particular world like "The Hub" or "The Barn". Zones are areas *inside* a location.
  * Both locations and zones have "new area discovered!" texts but only locations have skill requirements.
  */
-abstract class SkyblockLocation : SkyblockArea {
+abstract class SkyblockLocation : SkyblockArea() {
     abstract val skillRequirements: List<Skill.Requirement<Skill>>
 
     fun canEnterLocation(player: SkyblockPlayer): Boolean {
@@ -23,6 +23,4 @@ abstract class SkyblockLocation : SkyblockArea {
     }
 
     abstract val zones: List<Zone>
-
-    // TODO - New area discovered reward message
 }
