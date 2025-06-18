@@ -21,29 +21,29 @@ import org.bukkit.scheduler.BukkitRunnable
  * @property timeComponent The Time Component to be displayed on the scoreboard.
  */
 object Clock {
-    var minutes: Long = 0
+    var minutes: Int = 0
         private set
-    var hours: Long = 0
+    var hours: Int = 0
         private set
-    var days: Long = 0
+    var days: Int = 0
         private set
-    var months: Long = 0
+    var months: Int = 0
         private set
-    var seasons: Long = 0
+    var seasons: Int = 0
         private set
-    var years: Long = 0
+    var years: Int = 0
         private set
 
     /**
      * This function should be used to set the time when the server is restarted.
      */
     fun setTime(
-        minutes: Long? = null,
-        hours: Long? = null,
-        days: Long? = null,
-        months: Long? = null,
-        seasons: Long? = null,
-        years: Long? = null,
+        minutes: Int? = null,
+        hours: Int? = null,
+        days: Int? = null,
+        months: Int? = null,
+        seasons: Int? = null,
+        years: Int? = null,
     ) {
         if (minutes != null && minutes >= 0 && minutes < 60) {
             this.minutes = minutes
@@ -69,20 +69,20 @@ object Clock {
         object : BukkitRunnable() {
             override fun run() {
                 minutes += 10
-                if (minutes == 60L) {
+                if (minutes == 60) {
                     minutes = 0
                     hours++
                 }
-                if (hours == 24L) {
+                if (hours == 24) {
                     hours = 0
                     days++
                 }
-                if (days == 31L) {
+                if (days == 31) {
                     days = 0
                     months++
                     seasons = months / 3
                 }
-                if (seasons == 4L) {
+                if (seasons == 4) {
                     seasons = 0
                     months = 0
                     years++
@@ -122,8 +122,8 @@ object Clock {
 
     val timeComponent: Component
         get() {
-            val hour: Long = hours % 12
-            val amPm: String = if (hours / 12 == 0L) "am" else "pm"
+            val hour: Int = hours % 12
+            val amPm: String = if (hours / 12 == 0) "am" else "pm"
             return Component
                 .text(" $hour:$minutes$amPm ")
                 .color(NamedTextColor.GRAY)
