@@ -1,5 +1,7 @@
 package firstplugin.skyblock.location
 
+import firstplugin.skyblock.entity.SkyblockPlayer
+
 interface Explorer {
     val locationsDiscovered: List<SkyblockLocation>
 
@@ -10,7 +12,9 @@ interface Explorer {
     fun discoverZone(zone: Zone)
 }
 
-class ExplorerDelegate : Explorer {
+class ExplorerDelegate(
+    private val player: SkyblockPlayer,
+) : Explorer {
     private val _locationsDiscovered: MutableList<SkyblockLocation> = mutableListOf()
     override val locationsDiscovered: List<SkyblockLocation>
         get() = _locationsDiscovered.toList()
@@ -22,14 +26,16 @@ class ExplorerDelegate : Explorer {
     override fun discoverLocation(location: SkyblockLocation) {
         if (location !in _locationsDiscovered) {
             _locationsDiscovered.add(location)
-            // TODO - Add reward messages too
+            location.discoveryText.lore.forEach { player.sendMessage(it) }
+            // TODO - Add reward sound effects too
         }
     }
 
     override fun discoverZone(zone: Zone) {
         if (zone !in _zonesDiscovered) {
             _zonesDiscovered.add(zone)
-            // TODO - Add reward messages too
+            zone.discoveryText.lore.forEach { player.sendMessage(it) }
+            // TODO - Add reward sound effects too
         }
     }
 }
