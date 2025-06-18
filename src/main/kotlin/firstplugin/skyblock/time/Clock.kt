@@ -17,6 +17,8 @@ import org.bukkit.scheduler.BukkitRunnable
  * @property months The number of months that have passed since the new year. Always between 0 and 11 inclusive.
  * @property seasons The number of seasons that have passed since the new year. Always between 0 and 3 inclusive.
  * @property years The number of years that have passed since the clock began.
+ * @property seasonComponent The Season and Date Component to be displayed on the scoreboard.
+ * @property timeComponent The Time Component to be displayed on the scoreboard.
  */
 object Clock {
     var minutes: Long = 0
@@ -31,6 +33,37 @@ object Clock {
         private set
     var years: Long = 0
         private set
+
+    /**
+     * This function should be used to set the time when the server is restarted.
+     */
+    fun setTime(
+        minutes: Long? = null,
+        hours: Long? = null,
+        days: Long? = null,
+        months: Long? = null,
+        seasons: Long? = null,
+        years: Long? = null,
+    ) {
+        if (minutes != null && minutes >= 0 && minutes < 60) {
+            this.minutes = minutes
+        }
+        if (hours != null && hours >= 0 && hours < 24) {
+            this.hours = hours
+        }
+        if (days != null && days >= 0 && days < 31) {
+            this.days = days
+        }
+        if (months != null && months >= 0 && months < 12) {
+            this.months = months
+        }
+        if (seasons != null && seasons >= 0 && seasons < 4) {
+            this.seasons = seasons
+        }
+        if (years != null && years >= 0) {
+            this.years = years
+        }
+    }
 
     private val clockRunnable =
         object : BukkitRunnable() {
@@ -64,9 +97,6 @@ object Clock {
         clockRunnable.runTaskTimer(plugin, 0L, INGAME_10_MINUTES_IN_TICKS)
     }
 
-    /**
-     * The Season and Date Component to be displayed on the scoreboard.
-     */
     val seasonComponent: Component
         get() {
             val seasonSectionString =
@@ -90,9 +120,6 @@ object Clock {
                 .decoration(TextDecoration.ITALIC, false)
         }
 
-    /**
-     * The Time Component to be displayed on the scoreboard.
-     */
     val timeComponent: Component
         get() {
             val hour: Long = hours % 12
