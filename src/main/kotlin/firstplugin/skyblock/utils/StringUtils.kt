@@ -49,4 +49,18 @@ object StringUtils {
                 }
             }
     }
+
+    /**
+     * Returns the last two characters of the english version of an integer.
+     *
+     * @param num The integer to be converted
+     */
+    fun intToTh(num: Int): String =
+        if (num % 10 == 1 && num % 100 != 11) {
+            "st"
+        } else if (num % 10 == 2 && num % 100 != 12) {
+            "nd"
+        } else {
+            "th"
+        }
 }
