@@ -5,12 +5,12 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
-interface SkyblockArea {
-    val name: String
-    val color: NamedTextColor
-    val questLinesWithoutBulletPoints: SkyblockLore
+abstract class SkyblockArea {
+    abstract val name: String
+    abstract val color: NamedTextColor
+    abstract val questLinesWithoutBulletPoints: SkyblockLore
 
-    val questLines: SkyblockLore
+    private val questLines: SkyblockLore
         get() {
             val skyblockLore = SkyblockLore()
             for (component in questLinesWithoutBulletPoints) {
