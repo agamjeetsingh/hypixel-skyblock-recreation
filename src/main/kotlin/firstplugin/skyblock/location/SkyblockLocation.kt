@@ -8,6 +8,8 @@ import kotlin.reflect.KClass
  * Refers to a particular world like "The Hub" or "The Barn". Zones are areas *inside* a location.
  * Both locations and zones have "new area discovered!" texts but only locations have skill requirements.
  *
+ * Note: Each implementation of Zone must be a singleton object, not a class.
+ *
  * @property skillRequirements The list of skill requirements a player must pass before entering the location.
  * @property zones The list of zones inside this location.
  */
