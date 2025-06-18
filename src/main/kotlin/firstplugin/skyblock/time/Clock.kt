@@ -78,7 +78,7 @@ object Clock {
                 )
             val seasonString =
                 StringUtils.capitalizeWords(
-                    Seasons.entries
+                    Season.entries
                         .toTypedArray()[seasons.toInt()]
                         .toString()
                         .lowercase(),
