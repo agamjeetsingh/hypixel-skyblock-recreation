@@ -40,5 +40,5 @@ object TheBarn : SkyblockLocation() {
             Skill.Requirement(FarmingSkill::class, 1),
         )
 
-    override val zones: List<Zone> = listOf()
+    override val zones: List<Zone> = listOf(Windmill)
 }
