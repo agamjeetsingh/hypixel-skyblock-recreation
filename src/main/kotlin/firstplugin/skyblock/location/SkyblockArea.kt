@@ -5,6 +5,19 @@ import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.format.NamedTextColor
 import net.kyori.adventure.text.format.TextDecoration
 
+/**
+ * This class represents both [Zone] and [SkyblockLocation] which extend this class. It has the implementation for
+ * the discovery text shown to the player when a new area is discovered.
+ *
+ * @property name The name displayed when the area is referenced. E.g. in discovery texts
+ * @property color The color of the name displayed when the area is referenced.
+ * @property questLinesWithoutBulletPoints The quest lines but without bullet points. Bullet points are added by
+ * the getter for [questLines].
+ * @property questLines The quest lines with bullet points. These are directly used in [discoveryText]
+ * @property discoveryText This [SkyblockLore] is ready to be used to be sent as messages or as item lore.
+ * @property nameComponent This [Component] is used to reference this area. It has the correct name and color and is
+ * not italic.
+ */
 abstract class SkyblockArea {
     abstract val name: String
     abstract val color: NamedTextColor
