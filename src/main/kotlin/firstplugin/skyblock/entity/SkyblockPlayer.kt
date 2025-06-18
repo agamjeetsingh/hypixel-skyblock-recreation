@@ -12,6 +12,8 @@ import firstplugin.skyblock.economy.Coins
 import firstplugin.skyblock.economy.MoneyHolder
 import firstplugin.skyblock.location.Explorer
 import firstplugin.skyblock.location.ExplorerDelegate
+import firstplugin.skyblock.location.SkyblockLocation
+import firstplugin.skyblock.location.Zone
 import firstplugin.skyblock.minion.MinionHolder
 import firstplugin.skyblock.minion.MinionHolderDelegate
 import firstplugin.skyblock.skill.Skill
@@ -33,7 +35,7 @@ class SkyblockPlayer(
     MoneyHolder,
     SkillHolder,
     MinionHolder by MinionHolderDelegate(),
-    Explorer by ExplorerDelegate(),
+    Explorer,
     Crafter by CrafterDelegate(),
     CollectionHolder {
     constructor(player: Player) : this(ServerPlayer(player))
@@ -67,4 +69,12 @@ class SkyblockPlayer(
     override val skyblockLevel = SkyblockLevel(this)
 
     override val collections: List<Collection> = Collection.setupCollections(this)
+
+    private val explorerDelegate = ExplorerDelegate(this)
+    override val locationsDiscovered: List<SkyblockLocation> = explorerDelegate.locationsDiscovered
+    override val zonesDiscovered: List<Zone> = explorerDelegate.zonesDiscovered
+
+    override fun discoverLocation(location: SkyblockLocation) = explorerDelegate.discoverLocation(location)
+
+    override fun discoverZone(zone: Zone) = explorerDelegate.discoverZone(zone)
 }

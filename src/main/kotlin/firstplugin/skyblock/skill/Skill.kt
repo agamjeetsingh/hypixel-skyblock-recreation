@@ -9,12 +9,12 @@ import firstplugin.skyblock.attributes.AttributeEffect
 import firstplugin.skyblock.entity.SkyblockPlayer
 import firstplugin.skyblock.utils.sendMessage
 import firstplugin.skyblock.xp.SkyblockXPReward
-import net.kyori.adventure.sound.Sound
 import net.kyori.adventure.text.Component
 import net.kyori.adventure.text.TextComponent
 import net.kyori.adventure.text.format.NamedTextColor
 import org.bukkit.Material
 import java.util.*
+import kotlin.reflect.KClass
 
 /**
  * Maximum level that a skill can reach
@@ -225,8 +225,8 @@ abstract class Skill(
 
     open fun alternativePrimaryRewardMessage(): TextComponent? = null
 
-    class SkillRequirement<T : Skill>(
-        val skillClass: Class<T>,
+    class Requirement<out T : Skill>(
+        val skillClass: KClass<@UnsafeVariance T>,
         val levelRequired: Int = 0,
     )
 
