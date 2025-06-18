@@ -1,6 +1,6 @@
 package firstplugin.skyblock.time
 
-enum class Seasons {
+enum class Season {
     SPRING,
     SUMMER,
     AUTUMN,
