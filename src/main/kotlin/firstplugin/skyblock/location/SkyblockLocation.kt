@@ -13,7 +13,7 @@ abstract class SkyblockLocation : SkyblockArea() {
 
     fun canEnterLocation(player: SkyblockPlayer): Boolean {
         for (requirement in skillRequirements) {
-            val skillClass: KClass<Skill> = requirement.skillClass.kotlin
+            val skillClass: KClass<Skill> = requirement.skillClass
             val playerSkill: Skill? = player.skills.find { skillClass.isInstance(it) }
             if (playerSkill == null || playerSkill.level < requirement.levelRequired) {
                 return false
