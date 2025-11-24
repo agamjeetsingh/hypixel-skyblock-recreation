@@ -2,6 +2,8 @@
 
 This project is a personal endeavor to recreate and extend core gameplay systems inspired by the popular Hypixel Skyblock Minecraft server, developed as a plugin for the Bukkit/Paper API. It transforms the vanilla Minecraft experience into a rich RPG-like environment with custom mechanics, entities, and progression systems.
 
+**[Click here for comprehensive project documentation and design details on the Wiki.](https://github.com/agamjeetsingh/hypixel-skyblock-recreation/wiki)**
+
 ## Key Features
 
 *   **Custom Player Attributes:** Dynamic health, defense, strength, speed, and other RPG stats.
